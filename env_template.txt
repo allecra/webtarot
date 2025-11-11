@@ -1,0 +1,11 @@
+# Copy file này thành .env và điền các giá trị thực tế
+
+# Telegram Bot Token (lấy từ @BotFather trên Telegram)
+TELEGRAM_BOT_TOKEN=7571643195:AAGvfgIgVisZUpgKGoqlHGs4wdG4J1aC4X0
+
+# Langflow API Key (lấy từ Langflow Settings)
+LANGFLOW_API_KEY=sk-t-cDOotEqOWn_6fLSg3ufyLK6G8rYxaaDyYtjy4mJgM
+
+# Langflow Flow ID 
+FLOW_ID=eaa8dfa7-2bfb-4dc1-98fd-b110b2e71994
+

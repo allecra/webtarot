@@ -1,0 +1,249 @@
+/**
+ * UPDATE CHO FILE app.js
+ * Thay thế function performReading() với code dưới đây
+ */
+
+// ==================== UPDATE FUNCTION performReading ====================
+
+async performReading() {
+    const question = document.getElementById('questionInput').value.trim();
+    const sig = document.getElementById('sigInput').value.trim();
+    
+    // Show shuffle animation
+    document.getElementById('shuffleAnimation').style.display = 'block';
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'none';
+    
+    // Wait for shuffle animation (3 seconds)
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    // Hide shuffle, show loading
+    document.getElementById('shuffleAnimation').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'block';
+    
+    try {
+        // ====== THAY ĐỔI CHÍNH: Gọi endpoint mới ======
+        const response = await fetch('/api/tarot/reading', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                spread: this.currentSpread,
+                question: question
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Unknown error');
+        }
+        
+        // Store current reading
+        this.currentReading = {
+            text: result.text,
+            spread: this.currentSpread,
+            question: question,
+            timestamp: Date.now(),
+            cardData: result.cards  // Cards với URLs
+        };
+        
+        // Display results
+        this.displayResults(result.text, result.cards);
+        
+        console.log(`✅ Reading completed in ${result.processing_time}s`);
+        
+    } catch (error) {
+        console.error('Reading error:', error);
+        alert(`Có lỗi xảy ra: ${error.message}\n\nVui lòng thử lại hoặc kiểm tra:\n- Backend đang chạy (port 5000)\n- Langflow đã được cấu hình trong .env`);
+    } finally {
+        document.getElementById('loadingState').style.display = 'none';
+    }
+}
+
+// ==================== UPDATE FUNCTION displayResults ====================
+
+displayResults(text, cardData = null) {
+    console.log('=== displayResults ===');
+    console.log('Text length:', text ? text.length : 0);
+    console.log('Card data:', cardData);
+    
+    // Display cards với URLs từ backend
+    if (cardData && cardData.length > 0) {
+        console.log('Using card data from backend');
+        this.displayCards(cardData);
+    } else {
+        console.log('No card data provided');
+        this.displayCards([]);
+    }
+    
+    // Display text content
+    this.displayReadingContent(text);
+    
+    // Show results section
+    document.getElementById('resultsSection').style.display = 'block';
+    
+    // Scroll to results
+    document.getElementById('resultsSection').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+    });
+}
+
+// ==================== UPDATE FUNCTION displayCards ====================
+
+displayCards(cards) {
+    const container = document.getElementById('cardsDisplay');
+    container.innerHTML = '';
+
+    if (!cards || cards.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Không có thông tin lá bài</p>';
+        return;
+    }
+
+    // Display card images
+    cards.forEach((card, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'tarot-card-image-only';
+        
+        // cardData từ backend format: {name: "...", url: "..."}
+        const imageUrl = card.url || card.imageUrl || '';
+        const cardName = card.name || `Card ${index + 1}`;
+        
+        cardEl.innerHTML = `
+            <div class="card-image-wrapper">
+                <img 
+                    src="${imageUrl}" 
+                    alt="${this.escapeHtml(cardName)}" 
+                    class="card-image"
+                    onerror="this.src='https://via.placeholder.com/250x400/7B68EE/FFFFFF?text=Tarot+Card'"
+                >
+            </div>
+        `;
+        
+        container.appendChild(cardEl);
+    });
+}
+
+// ==================== UPDATE FUNCTION displayReadingContent ====================
+
+displayReadingContent(text) {
+    const container = document.getElementById('resultsContent');
+    container.innerHTML = '';
+    
+    if (!text) {
+        container.innerHTML = '<p>Không có nội dung giải nghĩa</p>';
+        return;
+    }
+    
+    // Split by paragraphs và format
+    const paragraphs = text.split('\n\n');
+    
+    let conclusionFound = false;
+    
+    paragraphs.forEach(para => {
+        if (!para.trim()) return;
+        
+        const paraEl = document.createElement('div');
+        
+        // Check if conclusion
+        if (para.toLowerCase().includes('kết luận') && !conclusionFound) {
+            paraEl.className = 'conclusion-section';
+            conclusionFound = true;
+            
+            const title = document.createElement('h3');
+            title.className = 'result-title';
+            title.innerHTML = '<span>🔮</span> Kết Luận';
+            
+            const content = document.createElement('p');
+            content.className = 'result-text';
+            // Remove "Kết luận:" from text
+            const cleanText = para.replace(/\*?\*?kết luận:?\*?\*?/i, '').trim();
+            content.innerHTML = this.escapeHtml(cleanText);
+            
+            paraEl.appendChild(title);
+            paraEl.appendChild(content);
+        } else {
+            paraEl.className = 'result-section';
+            
+            const p = document.createElement('p');
+            p.className = 'result-text';
+            p.innerHTML = this.escapeHtml(para);
+            
+            paraEl.appendChild(p);
+        }
+        
+        container.appendChild(paraEl);
+    });
+}
+
+// ==================== NOTES ====================
+
+/*
+THAY ĐỔI CHÍNH:
+
+1. performReading() - Gọi endpoint mới:
+   OLD: POST /api/langflow/<spread>
+   NEW: POST /api/tarot/reading
+   
+   Response format:
+   {
+       "success": true,
+       "text": "AI reading text...",
+       "cards": [
+           {"name": "The Fool", "url": "https://..."},
+           {"name": "The Magician", "url": "https://..."}
+       ],
+       "card_count": 3,
+       "processing_time": 3.45
+   }
+
+2. displayResults() - Đơn giản hơn:
+   - Không cần parse text để extract URLs
+   - Backend đã xử lý tất cả
+   - Chỉ việc display
+
+3. displayCards() - Support format mới:
+   - card.url (từ backend mới)
+   - card.imageUrl (từ code cũ, fallback)
+
+4. displayReadingContent() - Cải thiện format:
+   - Tự động detect "Kết luận"
+   - Format đẹp hơn
+
+5. Error handling tốt hơn:
+   - Show message hữu ích hơn cho user
+   - Hướng dẫn debug
+*/
+
+// ==================== TESTING ====================
+
+/*
+Test trong browser console:
+
+// Test API
+fetch('/api/tarot/reading', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+        spread: 'three',
+        question: 'Test từ browser'
+    })
+})
+.then(r => r.json())
+.then(d => console.log(d))
+
+// Expected output:
+{
+    "success": true,
+    "text": "...",
+    "cards": [...],
+    "processing_time": 3.45
+}
+*/
+
