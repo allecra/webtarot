@@ -5,7 +5,7 @@ Architecture: Backend-First Approach
 - Langflow chỉ handle AI reasoning
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import random
 import requests
@@ -531,6 +531,29 @@ def internal_error(error):
         "success": False,
         "error": "Internal server error"
     }), 500
+
+
+# ==================== STATIC FILES (FRONTEND) ====================
+
+@app.route('/')
+def serve_index():
+    """Serve trang chủ"""
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    """Serve static files (CSS, JS, images, etc.)"""
+    try:
+        # Kiểm tra xem file có tồn tại không
+        if os.path.exists(path):
+            return send_from_directory('.', path)
+        # Nếu không tìm thấy file, return index.html (cho SPA routing)
+        return send_from_directory('.', 'index.html')
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"File not found: {path}"
+        }), 404
 
 
 # ==================== MAIN ====================
