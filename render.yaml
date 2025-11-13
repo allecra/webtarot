@@ -9,8 +9,6 @@ services:
     buildCommand: "./build.sh"
     startCommand: "python tarot_api_final.py"
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.10.13
       - key: LANGFLOW_URL
         sync: false
       - key: LANGFLOW_API_KEY
