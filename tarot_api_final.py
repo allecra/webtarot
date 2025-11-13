@@ -333,9 +333,10 @@ def parse_and_format_result(ai_reading: str, cards_data: List[Dict]) -> Dict:
 
 # ==================== API ENDPOINTS ====================
 
-@app.route('/', methods=['GET'])
-def index():
-    """API Info"""
+@app.route('/api', methods=['GET'])
+@app.route('/api/', methods=['GET'])
+def api_info():
+    """API Info - Moved to /api instead of /"""
     return jsonify({
         "name": "Tarot Reading API",
         "version": "2.0.0",
