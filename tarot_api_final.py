@@ -28,6 +28,7 @@ TAROT_API_BASE_URL = "https://tarot-eu34.onrender.com"
 TAROT_API_ENDPOINT = f"{TAROT_API_BASE_URL}/cards/"
 LANGFLOW_URL = os.getenv('LANGFLOW_URL', 'http://localhost:7860/api/v1/run/eaa8dfa7-2bfb-4dc1-98fd-b110b2e71994')
 LANGFLOW_API_KEY = os.getenv('LANGFLOW_API_KEY', 'sk-t-cDOotEqOWn_6fLSg3ufyLK6G8rYxaaDyYtjy4mJgM')
+PORT = int(os.getenv('PORT', 5000))
 
 # Spread configurations
 SPREAD_COUNTS = {
@@ -544,14 +545,16 @@ if __name__ == '__main__':
     cards = get_all_cards_cached()
     print(f"📊 Loaded {len(cards)} cards into cache")
     
-    print(f"\n🚀 Starting server on http://0.0.0.0:5000")
+    print(f"\n🚀 Starting server on http://0.0.0.0:{PORT}")
     print(f"\n📋 Main endpoint:")
-    print(f"   POST http://localhost:5000/api/tarot/reading")
+    print(f"   POST http://localhost:{PORT}/api/tarot/reading")
     print(f"\n💡 Test với:")
-    print('   curl -X POST http://localhost:5000/api/tarot/reading \\')
+    print(f'   curl -X POST http://localhost:{PORT}/api/tarot/reading \\')
     print('        -H "Content-Type: application/json" \\')
     print('        -d \'{"spread":"three","question":"Test"}\'')
     print("\n")
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Production: Không dùng debug mode
+    is_production = os.getenv('RENDER') or os.getenv('RAILWAY_ENVIRONMENT')
+    app.run(host='0.0.0.0', port=PORT, debug=not is_production)
 

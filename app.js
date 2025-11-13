@@ -2,7 +2,8 @@
 class TarotApp {
     constructor() {
         this.currentSpread = null;
-        this.apiUrl = 'http://localhost:5000/api'; // Backend API URL
+        // Auto-detect API URL based on environment
+        this.apiUrl = this.getApiUrl();
         this.langflowUrl = null; // Will be set from environment or config
         this.langflowKey = null;
         this.currentReading = null;
@@ -11,6 +12,18 @@ class TarotApp {
         this.theme = 'dark';
         
         this.init();
+    }
+
+    getApiUrl() {
+        // Check if running on localhost
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:5000/api';
+        }
+        // Production: use same domain or custom API URL
+        // Nếu deploy cùng domain, dùng relative path
+        return window.location.origin + '/api';
+        // Hoặc nếu backend deploy riêng, uncomment dòng dưới và thay YOUR_BACKEND_URL:
+        // return 'https://YOUR_BACKEND_URL.onrender.com/api';
     }
 
     init() {
