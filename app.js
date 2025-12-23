@@ -24,9 +24,9 @@ class TarotApp {
         }
         // Production: Backend URL (thay bằng URL backend thực tế của bạn)
         // Nếu deploy frontend trên GitHub Pages và backend trên Render:
-        return 'https://tarot-eu34.onrender.com/api';
+       // return 'https://tarot-eu34.onrender.com/api';
         // Hoặc nếu backend deploy ở nơi khác, sửa URL ở đây:
-        // return 'https://YOUR_BACKEND_URL.onrender.com/api';
+        return 'https://api-cardtarot.onrender.com';
     }
 
     init() {
