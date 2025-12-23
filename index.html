@@ -35,104 +35,399 @@
         <source src="/music/background.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar" id="topNavbar">
+        <!-- Logo -->
+        <div class="navbar-brand">
+            <span class="logo-icon">✨</span>
+            <span class="logo-text">Tamtam Tarot</span>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span class="toggle-icon">☰</span>
+        </button>
+
+        <!-- Navigation Menu -->
+        <div class="navbar-menu" id="navbarMenu">
+            <a href="#" class="nav-item active" data-category="tarot">
+                <span class="nav-icon">🔮</span>
+                <span class="nav-text">Bói Tarot</span>
+            </a>
+            <a href="#" class="nav-item" data-category="zodiac">
+                <span class="nav-icon">♈</span>
+                <span class="nav-text">Cung Hoàng Đạo</span>
+            </a>
+            <a href="#" class="nav-item" data-category="numerology">
+                <span class="nav-icon">🔢</span>
+                <span class="nav-text">Thần Số Học</span>
+            </a>
+            <a href="#" class="nav-item" data-category="daily">
+                <span class="nav-icon">⭐</span>
+                <span class="nav-text">Tử Vi Ngày</span>
+            </a>
+            <a href="#" class="nav-item" data-category="dream">
+                <span class="nav-icon">💭</span>
+                <span class="nav-text">Giải Mộng</span>
+            </a>
+            <a href="#" class="nav-item" data-category="experts">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Chuyên Gia</span>
+            </a>
+            <a href="#" class="nav-item" data-category="chat">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-text">AI Trợ Lý</span>
+            </a>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="navbar-controls">
+            <button class="control-btn" id="musicToggle" title="Bật/Tắt nhạc">
+                <span class="nav-icon">🎵</span>
+            </button>
+            <button class="control-btn" id="themeToggle" title="Đổi theme">
+                <span class="nav-icon">🌙</span>
+            </button>
+            <button class="control-btn" id="historyToggle" title="Lịch sử">
+                <span class="nav-icon">📜</span>
+            </button>
+            <button class="control-btn" id="loginBtn" title="Đăng nhập">
+                <span class="nav-icon">👤</span>
+            </button>
+        </div>
+    </nav>
+
     <!-- Main Container -->
-    <div class="container">
+    <div class="main-container">
         <!-- Header -->
         <header class="header">
-            <!-- Control Buttons -->
-            <div class="header-controls">
-                <button id="musicToggle" class="control-btn" title="Bật/Tắt nhạc nền">
-                    <span class="icon">🎵</span>
-                </button>
-                <button id="themeToggle" class="control-btn" title="Chuyển đổi theme">
-                    <span class="icon">🌙</span>
-                </button>
-                <button id="historyToggle" class="control-btn" title="Xem lịch sử">
-                    <span class="icon">📜</span>
-                </button>
-            </div>
-
             <h1 class="title">
                 <span class="mystical-icon">✨</span>
-                Tamtam Tarot
+                Khám phá vận mệnh
                 <span class="mystical-icon">🔮</span>
             </h1>
-            <p class="subtitle">Khám phá vận mệnh qua lá bài Tarot huyền bí</p>
+            <p class="subtitle">Lắng nghe tiếng nói của vũ trụ</p>
         </header>
 
-        <!-- Home Page - Spread Selection -->
+        <!-- Home Page - Category Selection -->
         <div id="homePage" class="page active">
-            <div class="spread-grid">
-                <div class="spread-card" data-spread="one">
-                    <div class="card-icon">🎴</div>
-                    <h3>Một Lá Bài</h3>
-                    <p>Câu trả lời nhanh cho một câu hỏi</p>
+
+            <!-- Tarot Spreads Section -->
+            <div id="tarotSection" class="category-section active">
+                <!-- Spread Groups Navigation -->
+                <div class="spread-groups">
+                    <button class="group-btn active" data-group="basic">📚 Cơ Bản</button>
+                    <button class="group-btn" data-group="relationship">💕 Tình Yêu</button>
+                    <button class="group-btn" data-group="decision">🤔 Quyết Định</button>
+                    <button class="group-btn" data-group="spiritual">🧘 Tâm Linh</button>
                 </div>
 
-                <div class="spread-card" data-spread="three">
-                    <div class="card-icon">🔮</div>
-                    <h3>Ba Lá Bài</h3>
-                    <p>Quá khứ - Hiện tại - Tương lai</p>
+                <!-- Basic Spreads -->
+                <div class="spread-grid" data-group="basic">
+                    <div class="spread-card" data-spread="one">
+                        <div class="card-icon">🎴</div>
+                        <h3>Một Lá Bài</h3>
+                        <p>Câu trả lời nhanh cho một câu hỏi</p>
+                    </div>
+                    <div class="spread-card" data-spread="three">
+                        <div class="card-icon">🔮</div>
+                        <h3>Ba Lá Bài</h3>
+                        <p>Quá khứ - Hiện tại - Tương lai</p>
+                    </div>
+                    <div class="spread-card" data-spread="five">
+                        <div class="card-icon">⭐</div>
+                        <h3>Năm Lá Bài</h3>
+                        <p>Phân tích sâu tình huống</p>
+                    </div>
+                    <div class="spread-card" data-spread="celtic-cross">
+                        <div class="card-icon">✝️</div>
+                        <h3>Celtic Cross</h3>
+                        <p>Trải bài truyền thống 10 lá</p>
+                    </div>
+                    <div class="spread-card" data-spread="past-present-future">
+                        <div class="card-icon">⏳</div>
+                        <h3>Quá Khứ/Hiện Tại/Tương Lai</h3>
+                        <p>Ba giai đoạn của cuộc đời</p>
+                    </div>
                 </div>
 
-                <div class="spread-card" data-spread="five">
-                    <div class="card-icon">⭐</div>
-                    <h3>Năm Lá Bài</h3>
-                    <p>Phân tích sâu tình huống</p>
+                <!-- Relationship Spreads -->
+                <div class="spread-grid" data-group="relationship" style="display: none;">
+                    <div class="spread-card" data-spread="existing-relationship">
+                        <div class="card-icon">💑</div>
+                        <h3>Mối Quan Hệ Hiện Tại</h3>
+                        <p>Phân tích tình cảm</p>
+                    </div>
+                    <div class="spread-card" data-spread="potential-relationship">
+                        <div class="card-icon">💝</div>
+                        <h3>Mối Quan Hệ Tiềm Năng</h3>
+                        <p>Khả năng phát triển tình cảm</p>
+                    </div>
                 </div>
 
-                <div class="spread-card" data-spread="celtic-cross">
-                    <div class="card-icon">✝️</div>
-                    <h3>Celtic Cross</h3>
-                    <p>Trải bài truyền thống 10 lá</p>
+                <!-- Decision Spreads -->
+                <div class="spread-grid" data-group="decision" style="display: none;">
+                    <div class="spread-card" data-spread="making-decision">
+                        <div class="card-icon">🤔</div>
+                        <h3>Ra Quyết Định</h3>
+                        <p>Lựa chọn đúng đắn</p>
+                    </div>
+                    <div class="spread-card" data-spread="release-retain">
+                        <div class="card-icon">🔄</div>
+                        <h3>Buông Bỏ & Giữ Lại</h3>
+                        <p>Cân bằng cuộc sống</p>
+                    </div>
+                    <div class="spread-card" data-spread="asset-hindrance">
+                        <div class="card-icon">⚖️</div>
+                        <h3>Lợi Thế & Trở Ngại</h3>
+                        <p>Đánh giá tình huống</p>
+                    </div>
                 </div>
 
-                <div class="spread-card" data-spread="past-present-future">
-                    <div class="card-icon">⏳</div>
-                    <h3>Quá Khứ/Hiện Tại/Tương Lai</h3>
-                    <p>Ba giai đoạn của cuộc đời</p>
+                <!-- Spiritual Spreads -->
+                <div class="spread-grid" data-group="spiritual" style="display: none;">
+                    <div class="spread-card" data-spread="mind-body-spirit">
+                        <div class="card-icon">🧘</div>
+                        <h3>Tâm/Thân/Thần</h3>
+                        <p>Cân bằng nội tâm</p>
+                    </div>
+                    <div class="spread-card" data-spread="law-of-attraction">
+                        <div class="card-icon">🌟</div>
+                        <h3>Luật Hấp Dẫn</h3>
+                        <p>Thu hút điều tốt đẹp</p>
+                    </div>
                 </div>
+            </div>
 
-                <div class="spread-card" data-spread="mind-body-spirit">
-                    <div class="card-icon">🧘</div>
-                    <h3>Tâm/Thân/Thần</h3>
-                    <p>Cân bằng nội tâm</p>
+            <!-- Zodiac Section -->
+            <div id="zodiacSection" class="category-section" style="display: none;">
+                <div class="zodiac-grid">
+                    <div class="zodiac-card" data-zodiac="aries">
+                        <div class="zodiac-icon">♈</div>
+                        <h3>Bạch Dương</h3>
+                        <p class="zodiac-date">21/3 - 19/4</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="taurus">
+                        <div class="zodiac-icon">♉</div>
+                        <h3>Kim Ngưu</h3>
+                        <p class="zodiac-date">20/4 - 20/5</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="gemini">
+                        <div class="zodiac-icon">♊</div>
+                        <h3>Song Tử</h3>
+                        <p class="zodiac-date">21/5 - 20/6</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="cancer">
+                        <div class="zodiac-icon">♋</div>
+                        <h3>Cự Giải</h3>
+                        <p class="zodiac-date">21/6 - 22/7</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="leo">
+                        <div class="zodiac-icon">♌</div>
+                        <h3>Sư Tử</h3>
+                        <p class="zodiac-date">23/7 - 22/8</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="virgo">
+                        <div class="zodiac-icon">♍</div>
+                        <h3>Xử Nữ</h3>
+                        <p class="zodiac-date">23/8 - 22/9</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="libra">
+                        <div class="zodiac-icon">♎</div>
+                        <h3>Thiên Bình</h3>
+                        <p class="zodiac-date">23/9 - 22/10</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="scorpio">
+                        <div class="zodiac-icon">♏</div>
+                        <h3>Hổ Cáp</h3>
+                        <p class="zodiac-date">23/10 - 21/11</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="sagittarius">
+                        <div class="zodiac-icon">♐</div>
+                        <h3>Nhân Mã</h3>
+                        <p class="zodiac-date">22/11 - 21/12</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="capricorn">
+                        <div class="zodiac-icon">♑</div>
+                        <h3>Ma Kết</h3>
+                        <p class="zodiac-date">22/12 - 19/1</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="aquarius">
+                        <div class="zodiac-icon">♒</div>
+                        <h3>Bảo Bình</h3>
+                        <p class="zodiac-date">20/1 - 18/2</p>
+                    </div>
+                    <div class="zodiac-card" data-zodiac="pisces">
+                        <div class="zodiac-icon">♓</div>
+                        <h3>Song Ngư</h3>
+                        <p class="zodiac-date">19/2 - 20/3</p>
+                    </div>
                 </div>
+            </div>
 
-                <div class="spread-card" data-spread="existing-relationship">
-                    <div class="card-icon">💑</div>
-                    <h3>Mối Quan Hệ Hiện Tại</h3>
-                    <p>Phân tích tình cảm</p>
+            <!-- Numerology Section -->
+            <div id="numerologySection" class="category-section" style="display: none;">
+                <div class="numerology-container">
+                    <h2 class="section-title">🔢 Thần Số Học - Khám Phá Con Số Vận Mệnh</h2>
+                    <div class="numerology-form">
+                        <div class="form-group">
+                            <label>📅 Ngày sinh của bạn</label>
+                            <input type="date" id="birthDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>👤 Họ và tên đầy đủ (không dấu)</label>
+                            <input type="text" id="fullName" placeholder="VD: Nguyen Van A" required>
+                        </div>
+                        <button class="divine-btn" id="calculateNumerology">
+                            <span class="btn-text">Tính Toán Số Học</span>
+                            <span class="btn-icon">🔢</span>
+                        </button>
+                    </div>
+                    <div id="numerologyResult" class="result-box" style="display: none;"></div>
                 </div>
+            </div>
 
-                <div class="spread-card" data-spread="potential-relationship">
-                    <div class="card-icon">💝</div>
-                    <h3>Mối Quan Hệ Tiềm Năng</h3>
-                    <p>Khả năng phát triển tình cảm</p>
+            <!-- Daily Horoscope Section -->
+            <div id="dailySection" class="category-section" style="display: none;">
+                <div class="daily-container">
+                    <h2 class="section-title">⭐ Tử Vi Hàng Ngày</h2>
+                    <div class="zodiac-grid">
+                        <div class="zodiac-card daily-card" data-daily-zodiac="aries">
+                            <div class="zodiac-icon">♈</div>
+                            <h3>Bạch Dương</h3>
+                            <p class="zodiac-date">21/3 - 19/4</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="taurus">
+                            <div class="zodiac-icon">♉</div>
+                            <h3>Kim Ngưu</h3>
+                            <p class="zodiac-date">20/4 - 20/5</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="gemini">
+                            <div class="zodiac-icon">♊</div>
+                            <h3>Song Tử</h3>
+                            <p class="zodiac-date">21/5 - 20/6</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="cancer">
+                            <div class="zodiac-icon">♋</div>
+                            <h3>Cự Giải</h3>
+                            <p class="zodiac-date">21/6 - 22/7</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="leo">
+                            <div class="zodiac-icon">♌</div>
+                            <h3>Sư Tử</h3>
+                            <p class="zodiac-date">23/7 - 22/8</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="virgo">
+                            <div class="zodiac-icon">♍</div>
+                            <h3>Xử Nữ</h3>
+                            <p class="zodiac-date">23/8 - 22/9</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="libra">
+                            <div class="zodiac-icon">♎</div>
+                            <h3>Thiên Bình</h3>
+                            <p class="zodiac-date">23/9 - 22/10</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="scorpio">
+                            <div class="zodiac-icon">♏</div>
+                            <h3>Hổ Cáp</h3>
+                            <p class="zodiac-date">23/10 - 21/11</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="sagittarius">
+                            <div class="zodiac-icon">♐</div>
+                            <h3>Nhân Mã</h3>
+                            <p class="zodiac-date">22/11 - 21/12</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="capricorn">
+                            <div class="zodiac-icon">♑</div>
+                            <h3>Ma Kết</h3>
+                            <p class="zodiac-date">22/12 - 19/1</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="aquarius">
+                            <div class="zodiac-icon">♒</div>
+                            <h3>Bảo Bình</h3>
+                            <p class="zodiac-date">20/1 - 18/2</p>
+                        </div>
+                        <div class="zodiac-card daily-card" data-daily-zodiac="pisces">
+                            <div class="zodiac-icon">♓</div>
+                            <h3>Song Ngư</h3>
+                            <p class="zodiac-date">19/2 - 20/3</p>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div class="spread-card" data-spread="making-decision">
-                    <div class="card-icon">🤔</div>
-                    <h3>Ra Quyết Định</h3>
-                    <p>Lựa chọn đúng đắn</p>
+            <!-- Dream Interpretation Section -->
+            <div id="dreamSection" class="category-section" style="display: none;">
+                <div class="dream-container">
+                    <h2 class="section-title">💭 Giải Mộng - Khám Phá Ý Nghĩa Giấc Mơ</h2>
+                    <div class="dream-form">
+                        <div class="form-group">
+                            <label>🌙 Hãy kể cho tôi về giấc mơ của bạn</label>
+                            <textarea id="dreamDescription" rows="6" placeholder="Mô tả chi tiết giấc mơ của bạn... VD: Tôi mơ thấy con rắn trắng bay trên trời..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>🔍 Từ khóa quan trọng (tùy chọn)</label>
+                            <input type="text" id="dreamKeywords" placeholder="VD: rắn, bay, trắng">
+                        </div>
+                        <button class="divine-btn" id="interpretDream">
+                            <span class="btn-text">Giải Mộng</span>
+                            <span class="btn-icon">💭</span>
+                        </button>
+                    </div>
+                    <div id="dreamResult" class="result-box" style="display: none;"></div>
                 </div>
+            </div>
 
-                <div class="spread-card" data-spread="law-of-attraction">
-                    <div class="card-icon">🌟</div>
-                    <h3>Luật Hấp Dẫn</h3>
-                    <p>Thu hút điều tốt đẹp</p>
+            <!-- Experts Section -->
+            <div id="expertsSection" class="category-section" style="display: none;">
+                <div class="experts-container">
+                    <h2 class="section-title">👥 Chuyên Gia Tâm Linh</h2>
+                    <div class="expert-filters">
+                        <select id="expertCategory">
+                            <option value="">Tất cả chuyên môn</option>
+                            <option value="tarot">Tarot</option>
+                            <option value="astrology">Tử Vi</option>
+                            <option value="numerology">Thần Số</option>
+                            <option value="fengshui">Phong Thủy</option>
+                        </select>
+                        <select id="expertSort">
+                            <option value="rating">Đánh giá cao nhất</option>
+                            <option value="price-low">Giá thấp đến cao</option>
+                            <option value="price-high">Giá cao đến thấp</option>
+                        </select>
+                    </div>
+                    <div id="expertsGrid" class="experts-grid">
+                        <!-- Experts will be loaded here -->
+                        <p class="loading-text">Đang tải danh sách chuyên gia...</p>
+                    </div>
                 </div>
+            </div>
 
-                <div class="spread-card" data-spread="release-retain">
-                    <div class="card-icon">🔄</div>
-                    <h3>Buông Bỏ & Giữ Lại</h3>
-                    <p>Cân bằng cuộc sống</p>
-                </div>
-
-                <div class="spread-card" data-spread="asset-hindrance">
-                    <div class="card-icon">⚖️</div>
-                    <h3>Lợi Thế & Trở Ngại</h3>
-                    <p>Đánh giá tình huống</p>
+            <!-- AI Chat Section -->
+            <div id="chatSection" class="category-section" style="display: none;">
+                <div class="chat-container">
+                    <h2 class="section-title">🤖 AI Trợ Lý Tâm Linh</h2>
+                    <div class="chat-box">
+                        <div id="chatMessages" class="chat-messages">
+                            <div class="chat-message bot">
+                                <div class="message-avatar">🤖</div>
+                                <div class="message-content">
+                                    <p>Xin chào! Tôi là trợ lý AI tâm linh của bạn. Tôi có thể giúp bạn:</p>
+                                    <ul>
+                                        <li>Tư vấn về Tarot và cung hoàng đạo</li>
+                                        <li>Giải đáp thắc mắc về tâm linh</li>
+                                        <li>Gợi ý loại bói phù hợp với bạn</li>
+                                        <li>Hỗ trợ đa ngôn ngữ</li>
+                                    </ul>
+                                    <p>Bạn muốn hỏi gì về tâm linh? 😊</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatInput" placeholder="Nhập câu hỏi của bạn..." />
+                            <button id="chatSend" class="chat-send-btn">📤</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -291,10 +586,143 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>✨ Tamtam Tarot © 2025 - Khám phá bản thân qua nghệ thuật bói Tarot ✨</p>
-    </footer>
+    <!-- Daily Horoscope Result Modal -->
+    <div id="dailyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="dailyModalTitle">⭐ Vận Mệnh Hôm Nay</h2>
+                <button class="close-modal">✕</button>
+            </div>
+            <div class="modal-body" id="dailyModalBody">
+                <!-- Daily horoscope content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Expert Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📅 Đặt Lịch Tư Vấn</h2>
+                <button class="close-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingExpertInfo" class="booking-expert-info"></div>
+                <form id="bookingForm" class="booking-form">
+                    <div class="form-group">
+                        <label>📅 Chọn ngày</label>
+                        <input type="date" id="bookingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🕐 Chọn giờ</label>
+                        <select id="bookingTime" required>
+                            <option value="">Chọn giờ...</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="19:00">19:00</option>
+                            <option value="20:00">20:00</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>⏱️ Thời lượng</label>
+                        <select id="bookingDuration" required>
+                            <option value="30">30 phút</option>
+                            <option value="60">60 phút</option>
+                            <option value="90">90 phút</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>💬 Loại tư vấn</label>
+                        <select id="consultationType" required>
+                            <option value="chat">💬 Chat</option>
+                            <option value="voice">🎤 Voice Call</option>
+                            <option value="video">📹 Video Call</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📝 Ghi chú (tùy chọn)</label>
+                        <textarea id="bookingNotes" rows="3" placeholder="Bạn muốn tư vấn về vấn đề gì?"></textarea>
+                    </div>
+                    <div class="booking-summary">
+                        <div class="summary-item">
+                            <span>Tổng thời gian:</span>
+                            <span id="totalDuration">30 phút</span>
+                        </div>
+                        <div class="summary-item total-price">
+                            <span>Tổng chi phí:</span>
+                            <span id="totalPrice">0đ</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Xác Nhận Đặt Lịch</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="authModalTitle">👤 Đăng Nhập</h2>
+                <button class="close-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label>📧 Email</label>
+                        <input type="email" id="loginEmail" required placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Mật khẩu</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Đăng Nhập</button>
+                    <p class="auth-switch">
+                        Chưa có tài khoản? 
+                        <a href="#" id="switchToRegister">Đăng ký ngay</a>
+                    </p>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label>👤 Tên của bạn</label>
+                        <input type="text" id="registerName" required placeholder="Nguyễn Văn A">
+                    </div>
+                    <div class="form-group">
+                        <label>📧 Email</label>
+                        <input type="email" id="registerEmail" required placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Mật khẩu</label>
+                        <input type="password" id="registerPassword" required placeholder="••••••••" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Xác nhận mật khẩu</label>
+                        <input type="password" id="registerConfirmPassword" required placeholder="••••••••" minlength="6">
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Đăng Ký</button>
+                    <p class="auth-switch">
+                        Đã có tài khoản? 
+                        <a href="#" id="switchToLogin">Đăng nhập</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>✨ Tamtam Tarot © 2025 - Khám phá bản thân qua nghệ thuật bói Tarot ✨</p>
+        </footer>
+    </div>
+    <!-- End Main Container -->
 
     <script src="particles.js"></script>
     <script src="app.js"></script>

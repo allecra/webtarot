@@ -2,6 +2,8 @@
 class TarotApp {
     constructor() {
         this.currentSpread = null;
+        this.currentZodiac = null;
+        this.currentCategory = 'tarot'; // 'tarot' or 'zodiac'
         // Auto-detect API URL based on environment
         this.apiUrl = this.getApiUrl();
         this.langflowUrl = null; // Will be set from environment or config
@@ -10,6 +12,7 @@ class TarotApp {
         this.history = [];
         this.musicEnabled = false;
         this.theme = 'dark';
+        this.currentUser = null; // Current logged in user
         
         this.init();
     }
@@ -19,19 +22,50 @@ class TarotApp {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             return 'http://localhost:5000/api';
         }
-        // Production: use same domain or custom API URL
-        // Nếu deploy cùng domain, dùng relative path
-        return window.location.origin + '/api';
-        // Hoặc nếu backend deploy riêng, uncomment dòng dưới và thay YOUR_BACKEND_URL:
+        // Production: Backend URL (thay bằng URL backend thực tế của bạn)
+        // Nếu deploy frontend trên GitHub Pages và backend trên Render:
+        return 'https://tarot-eu34.onrender.com/api';
+        // Hoặc nếu backend deploy ở nơi khác, sửa URL ở đây:
         // return 'https://YOUR_BACKEND_URL.onrender.com/api';
     }
 
     init() {
         this.loadConfig();
+        this.loadUser();
         this.loadHistory();
         this.loadTheme();
         this.attachEventListeners();
         this.loadCardSuggestions();
+        this.updateLoginButton();
+    }
+    
+    loadUser() {
+        const savedUser = localStorage.getItem('tarot_user');
+        if (savedUser) {
+            try {
+                this.currentUser = JSON.parse(savedUser);
+                console.log('User logged in:', this.currentUser.name);
+            } catch (e) {
+                this.currentUser = null;
+            }
+        }
+    }
+    
+    updateLoginButton() {
+        const btn = document.getElementById('loginBtn');
+        const icon = btn.querySelector('.icon');
+        
+        if (this.currentUser) {
+            icon.textContent = '👋';
+            btn.title = `Xin chào, ${this.currentUser.name}`;
+            btn.style.background = 'var(--accent-primary)';
+            btn.style.color = 'white';
+        } else {
+            icon.textContent = '👤';
+            btn.title = 'Đăng nhập';
+            btn.style.background = '';
+            btn.style.color = '';
+        }
     }
     
     loadHistory() {
@@ -100,11 +134,74 @@ class TarotApp {
     }
 
     attachEventListeners() {
+        // Sidebar navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const category = e.currentTarget.dataset.category;
+                this.switchCategory(category);
+                
+                // Update active state
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                
+                // Close mobile menu if open
+                if (window.innerWidth <= 1024) {
+                    const navbarMenu = document.getElementById('navbarMenu');
+                    if (navbarMenu) {
+                        navbarMenu.classList.remove('mobile-open');
+                    }
+                }
+            });
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+        
+        if (mobileMenuToggle && navbarMenu) {
+            mobileMenuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navbarMenu.classList.toggle('mobile-open');
+            });
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (navbarMenu && !navbarMenu.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                navbarMenu.classList.remove('mobile-open');
+            }
+        });
+        
+        // Spread groups navigation
+        document.querySelectorAll('.group-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const group = e.currentTarget.dataset.group;
+                this.switchSpreadGroup(group);
+            });
+        });
+        
         // Spread card selection
         document.querySelectorAll('.spread-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const spread = e.currentTarget.dataset.spread;
                 this.selectSpread(spread);
+            });
+        });
+        
+        // Zodiac card selection
+        document.querySelectorAll('.zodiac-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const zodiac = e.currentTarget.dataset.zodiac;
+                this.selectZodiac(zodiac);
+            });
+        });
+        
+        // Daily horoscope cards
+        document.querySelectorAll('.daily-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const zodiac = e.currentTarget.dataset.dailyZodiac;
+                this.showDailyHoroscope(zodiac);
             });
         });
 
@@ -131,6 +228,14 @@ class TarotApp {
             this.toggleHistory();
         });
         
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            if (this.currentUser) {
+                this.showLogoutConfirm();
+            } else {
+                this.openAuthModal();
+            }
+        });
+        
         // History sidebar
         document.getElementById('closeHistory').addEventListener('click', () => {
             this.closeHistory();
@@ -151,8 +256,9 @@ class TarotApp {
         
         // Share modal
         document.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.closeShareModal();
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal');
+                if (modal) modal.classList.remove('active');
             });
         });
         
@@ -168,10 +274,33 @@ class TarotApp {
         });
         
         // Close modal on background click
-        document.getElementById('shareModal').addEventListener('click', (e) => {
-            if (e.target.id === 'shareModal') {
-                this.closeShareModal();
-            }
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+        
+        // Auth forms
+        document.getElementById('switchToRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.switchToRegisterForm();
+        });
+        
+        document.getElementById('switchToLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.switchToLoginForm();
+        });
+        
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin();
+        });
+        
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRegister();
         });
     }
     
@@ -270,6 +399,13 @@ class TarotApp {
     }
     
     saveCurrentReading() {
+        // Kiểm tra đăng nhập
+        if (!this.currentUser) {
+            alert('Bạn cần đăng nhập để lưu lịch sử! 🔒');
+            this.openAuthModal();
+            return;
+        }
+        
         if (!this.currentReading) {
             alert('Không có kết quả để lưu');
             return;
@@ -474,10 +610,11 @@ class TarotApp {
     async performReading() {
         const question = document.getElementById('questionInput').value.trim();
         
-        console.log('🔮 Starting tarot reading...');
+        console.log('🔮 Starting reading...');
+        console.log('Category:', this.currentCategory);
         console.log('Spread:', this.currentSpread);
+        console.log('Zodiac:', this.currentZodiac);
         console.log('Question:', question);
-        console.log('API URL:', `${this.apiUrl}/tarot/reading`);
         
         // Show shuffle animation
         document.getElementById('shuffleAnimation').style.display = 'block';
@@ -494,16 +631,35 @@ class TarotApp {
         try {
             console.log('🚀 Sending request to backend...');
             
-            // ====== THAY ĐỔI CHÍNH: Gọi endpoint mới ======
-            const response = await fetch(`${this.apiUrl}/tarot/reading`, {
+            let endpoint, payload;
+            
+            if (this.currentCategory === 'zodiac' && this.currentZodiac) {
+                // Zodiac reading
+                endpoint = `${this.apiUrl}/tarot/zodiac`;
+                payload = {
+                    zodiac: this.currentZodiac,
+                    question: question
+                };
+            } else if (this.currentSpread) {
+                // Tarot spread reading
+                endpoint = `${this.apiUrl}/tarot/reading`;
+                payload = {
+                    spread: this.currentSpread,
+                    question: question
+                };
+            } else {
+                throw new Error('No spread or zodiac selected');
+            }
+            
+            console.log('Endpoint:', endpoint);
+            console.log('Payload:', payload);
+            
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    spread: this.currentSpread,
-                    question: question
-                })
+                body: JSON.stringify(payload)
             });
             
             console.log('📡 Response status:', response.status);
@@ -527,6 +683,8 @@ class TarotApp {
             this.currentReading = {
                 text: result.text,
                 spread: this.currentSpread,
+                zodiac: this.currentZodiac,
+                category: this.currentCategory,
                 question: question,
                 timestamp: Date.now(),
                 cardData: result.cards  // Cards với URLs từ backend
@@ -1348,6 +1506,392 @@ class TarotApp {
         });
         
         return result.join('');
+    }
+
+    switchCategory(category) {
+        this.currentCategory = category;
+        
+        // Show/hide sections
+        const sections = {
+            'tarot': 'tarotSection',
+            'zodiac': 'zodiacSection',
+            'numerology': 'numerologySection',
+            'daily': 'dailySection',
+            'dream': 'dreamSection',
+            'experts': 'expertsSection',
+            'chat': 'chatSection'
+        };
+        
+        // Hide all sections
+        Object.values(sections).forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            if (section) section.style.display = 'none';
+        });
+        
+        // Show selected section
+        const targetSection = document.getElementById(sections[category]);
+        if (targetSection) {
+            targetSection.style.display = 'block';
+            
+            // Load data for specific sections
+            if (category === 'experts') {
+                this.loadExperts();
+            }
+        }
+    }
+    
+    switchSpreadGroup(group) {
+        // Update group buttons
+        document.querySelectorAll('.group-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.group === group);
+        });
+        
+        // Show/hide spread grids
+        document.querySelectorAll('.spread-grid').forEach(grid => {
+            grid.style.display = grid.dataset.group === group ? 'grid' : 'none';
+        });
+    }
+    
+    selectZodiac(zodiac) {
+        this.currentZodiac = zodiac;
+        this.currentSpread = null;
+        this.currentCategory = 'zodiac';
+        
+        const zodiacNames = {
+            'aries': '♈ Bạch Dương',
+            'taurus': '♉ Kim Ngưu',
+            'gemini': '♊ Song Tử',
+            'cancer': '♋ Cự Giải',
+            'leo': '♌ Sư Tử',
+            'virgo': '♍ Xử Nữ',
+            'libra': '♎ Thiên Bình',
+            'scorpio': '♏ Hổ Cáp',
+            'sagittarius': '♐ Nhân Mã',
+            'capricorn': '♑ Ma Kết',
+            'aquarius': '♒ Bảo Bình',
+            'pisces': '♓ Song Ngư'
+        };
+        
+        document.getElementById('spreadTitle').textContent = `Vận Mệnh ${zodiacNames[zodiac] || zodiac}`;
+        
+        // Update question label
+        document.querySelector('#questionInput').placeholder = `Bạn muốn hỏi điều gì về cung ${zodiacNames[zodiac]}?`;
+        
+        this.showReadingPage();
+    }
+    
+    // ==================== AUTH METHODS ====================
+    
+    openAuthModal() {
+        document.getElementById('authModal').classList.add('active');
+        this.switchToLoginForm();
+    }
+    
+    switchToRegisterForm() {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('authModalTitle').textContent = '📝 Đăng Ký';
+    }
+    
+    switchToLoginForm() {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('authModalTitle').textContent = '👤 Đăng Nhập';
+    }
+    
+    handleLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        
+        // Get registered users from localStorage
+        const users = JSON.parse(localStorage.getItem('tarot_users') || '[]');
+        
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (user) {
+            this.currentUser = {
+                name: user.name,
+                email: user.email
+            };
+            localStorage.setItem('tarot_user', JSON.stringify(this.currentUser));
+            this.updateLoginButton();
+            document.getElementById('authModal').classList.remove('active');
+            alert(`Chào mừng trở lại, ${user.name}! 👋`);
+            
+            // Clear form
+            document.getElementById('loginForm').reset();
+        } else {
+            alert('Email hoặc mật khẩu không đúng! 😔');
+        }
+    }
+    
+    handleRegister() {
+        const name = document.getElementById('registerName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('registerConfirmPassword').value;
+        
+        if (!name || !email || !password) {
+            alert('Vui lòng điền đầy đủ thông tin!');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            alert('Mật khẩu xác nhận không khớp!');
+            return;
+        }
+        
+        if (password.length < 6) {
+            alert('Mật khẩu phải có ít nhất 6 ký tự!');
+            return;
+        }
+        
+        // Get existing users
+        const users = JSON.parse(localStorage.getItem('tarot_users') || '[]');
+        
+        // Check if email exists
+        if (users.find(u => u.email === email)) {
+            alert('Email này đã được đăng ký!');
+            return;
+        }
+        
+        // Add new user
+        users.push({
+            name,
+            email,
+            password
+        });
+        
+        localStorage.setItem('tarot_users', JSON.stringify(users));
+        
+        // Auto login
+        this.currentUser = { name, email };
+        localStorage.setItem('tarot_user', JSON.stringify(this.currentUser));
+        this.updateLoginButton();
+        document.getElementById('authModal').classList.remove('active');
+        alert(`Đăng ký thành công! Chào mừng ${name}! 🎉`);
+        
+        // Clear form
+        document.getElementById('registerForm').reset();
+        this.switchToLoginForm();
+    }
+    
+    showLogoutConfirm() {
+        if (confirm(`Bạn có muốn đăng xuất không, ${this.currentUser.name}?`)) {
+            this.logout();
+        }
+    }
+    
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('tarot_user');
+        this.updateLoginButton();
+        alert('Đã đăng xuất thành công! 👋');
+    }
+
+    loadExperts() {
+        // Placeholder function - will be implemented with MongoDB
+        const expertsGrid = document.getElementById('expertsGrid');
+        if (!expertsGrid) return;
+        
+        // Show loading
+        expertsGrid.innerHTML = '<p class="loading-text">Đang tải danh sách chuyên gia...</p>';
+        
+        // TODO: Load from MongoDB
+        // For now, show placeholder message
+        setTimeout(() => {
+            expertsGrid.innerHTML = `
+                <div style="text-align: center; padding: 2rem; grid-column: 1/-1;">
+                    <p style="font-size: 1.2rem; color: var(--text-secondary);">
+                        🚧 Tính năng đang phát triển<br><br>
+                        Chuyên gia sẽ có sẵn sau khi kết nối MongoDB
+                    </p>
+                </div>
+            `;
+        }, 500);
+    }
+    
+    async showDailyHoroscope(zodiac) {
+        const zodiacNames = {
+            'aries': 'Bạch Dương ♈',
+            'taurus': 'Kim Ngưu ♉',
+            'gemini': 'Song Tử ♊',
+            'cancer': 'Cự Giải ♋',
+            'leo': 'Sư Tử ♌',
+            'virgo': 'Xử Nữ ♍',
+            'libra': 'Thiên Bình ♎',
+            'scorpio': 'Hổ Cáp ♏',
+            'sagittarius': 'Nhân Mã ♐',
+            'capricorn': 'Ma Kết ♑',
+            'aquarius': 'Bảo Bình ♒',
+            'pisces': 'Song Ngư ♓'
+        };
+        
+        const modal = document.getElementById('dailyModal');
+        const modalTitle = document.getElementById('dailyModalTitle');
+        const modalBody = document.getElementById('dailyModalBody');
+        
+        // Show modal with loading
+        modalTitle.textContent = `⭐ Tử Vi Hôm Nay - ${zodiacNames[zodiac]}`;
+        modalBody.innerHTML = `
+            <div class="loading" style="padding: 3rem;">
+                <div class="crystal-ball">
+                    <div class="glow"></div>
+                    <div class="inner-glow"></div>
+                </div>
+                <p class="loading-text">Đang xem vận mệnh hôm nay...</p>
+            </div>
+        `;
+        modal.classList.add('active');
+        
+        try {
+            console.log(`🌟 Fetching daily horoscope for ${zodiac}...`);
+            
+            const response = await fetch(`${this.apiUrl}/daily/${zodiac}`);
+            
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('📦 Daily horoscope data:', result);
+            
+            if (!result.success) {
+                throw new Error(result.error || 'Unknown error');
+            }
+            
+            // Display result
+            this.displayDailyResult(result);
+            
+        } catch (error) {
+            console.error('Daily horoscope error:', error);
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <p style="color: var(--error-color); font-size: 1.2rem;">❌ Có lỗi xảy ra</p>
+                    <p style="color: var(--text-secondary); margin-top: 1rem;">${error.message}</p>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 1rem;">
+                        Vui lòng kiểm tra:<br>
+                        - Backend đang chạy (port 5000)<br>
+                        - Langflow đã được cấu hình
+                    </p>
+                </div>
+            `;
+        }
+    }
+    
+    displayDailyResult(data) {
+        const modalBody = document.getElementById('dailyModalBody');
+        const { card, reading, scores, lucky_color, lucky_number, date, zodiac_name } = data;
+        
+        const scoreColor = (score) => {
+            if (score >= 8) return 'var(--success-color)';
+            if (score >= 6) return 'var(--accent-gold)';
+            return 'var(--accent-secondary)';
+        };
+        
+        const scoreStars = (score) => {
+            const filled = Math.round(score / 2);
+            return '⭐'.repeat(filled) + '☆'.repeat(5 - filled);
+        };
+        
+        modalBody.innerHTML = `
+            <div class="daily-result">
+                <!-- Date & Card -->
+                <div class="daily-header">
+                    <div class="daily-date">
+                        📅 ${new Date(date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                    <div class="daily-card-display">
+                        <img src="${card.image}" alt="${card.name}" class="daily-card-image ${card.orientation === 'reversed' ? 'reversed' : ''}">
+                        <div class="card-info">
+                            <h3>${card.name}</h3>
+                            <span class="orientation-badge ${card.orientation}">${card.orientation_vi}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lucky Info -->
+                <div class="lucky-info">
+                    <div class="lucky-item">
+                        <span class="lucky-icon">🎨</span>
+                        <div>
+                            <div class="lucky-label">Màu may mắn</div>
+                            <div class="lucky-value">${lucky_color}</div>
+                        </div>
+                    </div>
+                    <div class="lucky-item">
+                        <span class="lucky-icon">🔢</span>
+                        <div>
+                            <div class="lucky-label">Số may mắn</div>
+                            <div class="lucky-value">${lucky_number}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scores -->
+                <div class="daily-scores">
+                    <div class="score-item">
+                        <div class="score-icon">💝</div>
+                        <div class="score-info">
+                            <div class="score-label">Tình yêu</div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: ${scores.love * 10}%; background: ${scoreColor(scores.love)}"></div>
+                            </div>
+                            <div class="score-value" style="color: ${scoreColor(scores.love)}">${scores.love}/10 ${scoreStars(scores.love)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-icon">💼</div>
+                        <div class="score-info">
+                            <div class="score-label">Công việc</div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: ${scores.career * 10}%; background: ${scoreColor(scores.career)}"></div>
+                            </div>
+                            <div class="score-value" style="color: ${scoreColor(scores.career)}">${scores.career}/10 ${scoreStars(scores.career)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-icon">💰</div>
+                        <div class="score-info">
+                            <div class="score-label">Tài chính</div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: ${scores.money * 10}%; background: ${scoreColor(scores.money)}"></div>
+                            </div>
+                            <div class="score-value" style="color: ${scoreColor(scores.money)}">${scores.money}/10 ${scoreStars(scores.money)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-icon">💪</div>
+                        <div class="score-info">
+                            <div class="score-label">Sức khỏe</div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: ${scores.health * 10}%; background: ${scoreColor(scores.health)}"></div>
+                            </div>
+                            <div class="score-value" style="color: ${scoreColor(scores.health)}">${scores.health}/10 ${scoreStars(scores.health)}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reading Content -->
+                <div class="daily-reading">
+                    <h3>📖 Chi Tiết Vận Mệnh</h3>
+                    <div class="reading-content">${this.formatText(reading)}</div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="daily-actions">
+                    <button class="action-btn primary" onclick="window.location.reload()">
+                        🔄 Xem cung khác
+                    </button>
+                    <button class="action-btn secondary" onclick="document.getElementById('dailyModal').classList.remove('active')">
+                        ✓ Đã hiểu
+                    </button>
+                </div>
+            </div>
+        `;
     }
 
     escapeHtml(text) {

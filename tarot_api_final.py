@@ -451,6 +451,301 @@ def quick_reading():
         }), 500
 
 
+@app.route('/api/tarot/zodiac', methods=['POST'])
+def zodiac_reading():
+    """
+    Zodiac Tarot Reading - Bói theo cung hoàng đạo
+    
+    Input:
+    {
+        "zodiac": "aries",
+        "question": "Tình yêu của tôi sẽ như thế nào?"
+    }
+    
+    Output:
+    {
+        "success": true,
+        "text": "AI generated reading...",
+        "cards": [{"name": "...", "url": "..."}],
+        "card_count": 3,
+        "zodiac": "aries",
+        "processing_time": 3.45
+    }
+    """
+    start_time = time.time()
+    
+    try:
+        data = request.get_json() or {}
+        zodiac = data.get('zodiac', 'aries')
+        question = data.get('question', '')
+        
+        zodiac_names = {
+            'aries': 'Bạch Dương ♈',
+            'taurus': 'Kim Ngưu ♉',
+            'gemini': 'Song Tử ♊',
+            'cancer': 'Cự Giải ♋',
+            'leo': 'Sư Tử ♌',
+            'virgo': 'Xử Nữ ♍',
+            'libra': 'Thiên Bình ♎',
+            'scorpio': 'Hổ Cáp ♏',
+            'sagittarius': 'Nhân Mã ♐',
+            'capricorn': 'Ma Kết ♑',
+            'aquarius': 'Bảo Bình ♒',
+            'pisces': 'Song Ngư ♓'
+        }
+        
+        zodiac_name = zodiac_names.get(zodiac, zodiac)
+        
+        print(f"\n{'='*60}")
+        print(f"🌟 New Zodiac Reading Request")
+        print(f"   Zodiac: {zodiac_name}")
+        print(f"   Question: {question[:50]}..." if question else "   Question: (none)")
+        print(f"{'='*60}\n")
+        
+        # Step 1: Draw 3 cards cho zodiac reading
+        print("Step 1: Drawing cards for zodiac reading...")
+        cards_data = draw_cards_from_api('three')  # Use 3-card spread for zodiac
+        print(f"✅ Drew {len(cards_data)} cards")
+        
+        # Step 2: Format data cho Langflow với zodiac context
+        print("Step 2: Formatting for Langflow...")
+        langflow_input = format_zodiac_for_langflow(cards_data, zodiac, zodiac_name, question)
+        
+        # Step 3: Call Langflow Agent
+        print("Step 3: Calling Langflow Agent...")
+        ai_reading = call_langflow_agent(langflow_input)
+        print(f"✅ Received AI reading ({len(ai_reading)} chars)")
+        
+        # Step 4: Parse và format result
+        print("Step 4: Parsing and formatting result...")
+        result = parse_and_format_result(ai_reading, cards_data)
+        
+        processing_time = time.time() - start_time
+        print(f"\n✅ Zodiac reading completed in {processing_time:.2f}s\n")
+        
+        return jsonify({
+            "success": True,
+            "zodiac": zodiac,
+            "zodiac_name": zodiac_name,
+            "question": question,
+            "processing_time": round(processing_time, 2),
+            **result
+        })
+        
+    except Exception as e:
+        print(f"\n❌ Error: {str(e)}\n")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__
+        }), 500
+
+
+def format_zodiac_for_langflow(cards_data: List[Dict], zodiac: str, zodiac_name: str, question: str = "") -> str:
+    """
+    Format dữ liệu cho zodiac reading
+    """
+    prompt = "=== THÔNG TIN BÓI BÀI THEO CUNG HOÀNG ĐẠO ===\n\n"
+    prompt += f"Cung hoàng đạo: {zodiac_name}\n"
+    prompt += f"Kiểu trải bài: Ba Lá Bài (Quá Khứ - Hiện Tại - Tương Lai)\n"
+    
+    if question:
+        prompt += f"Câu hỏi: {question}\n"
+    
+    prompt += f"\n=== CÁC LÁ BÀI ĐÃ RÚT ({len(cards_data)} lá) ===\n\n"
+    
+    for i, card in enumerate(cards_data, 1):
+        prompt += f"{i}. {card['position']}: {card['name']} ({card['orientation_vi']})\n"
+        prompt += f"   Mô tả: {card['description'][:250]}...\n"
+        prompt += f"   Ảnh: {card['image']}\n\n"
+    
+    prompt += f"\n--- YÊU CẦU GIẢI BÀI ---\n"
+    prompt += f"Hãy giải bài Tarot theo ngữ cảnh cung {zodiac_name}.\n"
+    prompt += f"Tập trung vào đặc điểm và năng lượng đặc trưng của cung {zodiac_name}.\n"
+    prompt += f"Liên kết ý nghĩa của các lá bài với vận mệnh và xu hướng của cung hoàng đạo này.\n"
+    
+    # Thêm danh sách ảnh ở cuối
+    prompt += "\n--- DANH SÁCH ẢNH (copy vào phần cuối output) ---\n"
+    for card in cards_data:
+        prompt += f"- {card['name']}: {card['image']}\n"
+    
+    prompt += "\n--- KẾT THÚC INPUT ---"
+    
+    return prompt
+
+
+@app.route('/api/daily/<zodiac>', methods=['GET'])
+def daily_horoscope(zodiac):
+    """
+    Tử Vi Hằng Ngày - Bốc 1 lá tự động
+    
+    GET /api/daily/aries
+    
+    Output:
+    {
+        "success": true,
+        "zodiac": "aries",
+        "date": "2025-01-15",
+        "card": {...},
+        "reading": "...",
+        "scores": {
+            "love": 8,
+            "career": 7,
+            "money": 6,
+            "health": 9
+        },
+        "lucky_color": "Xanh dương",
+        "lucky_number": 7
+    }
+    """
+    start_time = time.time()
+    
+    try:
+        from datetime import date
+        today = date.today().strftime("%Y-%m-%d")
+        
+        zodiac_names = {
+            'aries': 'Bạch Dương ♈',
+            'taurus': 'Kim Ngưu ♉',
+            'gemini': 'Song Tử ♊',
+            'cancer': 'Cự Giải ♋',
+            'leo': 'Sư Tử ♌',
+            'virgo': 'Xử Nữ ♍',
+            'libra': 'Thiên Bình ♎',
+            'scorpio': 'Hổ Cáp ♏',
+            'sagittarius': 'Nhân Mã ♐',
+            'capricorn': 'Ma Kết ♑',
+            'aquarius': 'Bảo Bình ♒',
+            'pisces': 'Song Ngư ♓'
+        }
+        
+        zodiac_name = zodiac_names.get(zodiac, zodiac)
+        
+        print(f"\n{'='*60}")
+        print(f"⭐ Daily Horoscope Request")
+        print(f"   Zodiac: {zodiac_name}")
+        print(f"   Date: {today}")
+        print(f"{'='*60}\n")
+        
+        # Step 1: Draw 1 card only
+        print("Step 1: Drawing card for daily horoscope...")
+        all_cards = get_all_cards_cached()
+        
+        if not all_cards:
+            raise Exception("Cannot fetch cards from external API")
+        
+        # Random select 1 card
+        import random
+        card = random.choice(all_cards)
+        orientation = random.choice(['upright', 'reversed'])
+        
+        card_data = {
+            'name': card['name'],
+            'orientation': orientation,
+            'orientation_vi': 'Xuôi' if orientation == 'upright' else 'Ngược',
+            'description': card['description'],
+            'image': card['image']
+        }
+        
+        print(f"✅ Drew card: {card_data['name']} ({card_data['orientation_vi']})")
+        
+        # Step 2: Generate lucky numbers and colors (based on card)
+        colors = ['Đỏ', 'Xanh dương', 'Vàng', 'Tím', 'Xanh lá', 'Hồng', 'Cam', 'Trắng']
+        lucky_color = random.choice(colors)
+        lucky_number = random.randint(1, 9)
+        
+        # Step 3: Format for Langflow
+        print("Step 2: Formatting for Langflow...")
+        question = f"Tử vi hôm nay ({today}) cho cung {zodiac_name} thế nào?"
+        
+        langflow_input = f"""=== TỬ VI HẰNG NGÀY ===
+
+Cung hoàng đạo: {zodiac_name}
+Ngày: {today}
+Câu hỏi: {question}
+
+Lá bài đại diện hôm nay:
+- Tên: {card_data['name']}
+- Hướng: {card_data['orientation_vi']}
+- Mô tả: {card_data['description'][:200]}...
+
+YÊU CẦU:
+Dựa vào lá bài này, hãy viết vận mệnh hôm nay cho cung {zodiac_name}.
+
+Format output:
+1. ⭐ Tổng quan (2-3 câu ngắn gọn)
+2. 💝 Tình yêu - Điểm: [X]/10
+3. 💼 Công việc - Điểm: [X]/10  
+4. 💰 Tài chính - Điểm: [X]/10
+5. 💪 Sức khỏe - Điểm: [X]/10
+6. 💡 Lời khuyên (1-2 câu)
+
+Viết ngắn gọn, tích cực, dễ hiểu (150-200 từ). Bắt buộc cho điểm cụ thể.
+"""
+        
+        # Step 4: Call Langflow
+        print("Step 3: Calling Langflow Agent...")
+        ai_reading = call_langflow_agent(langflow_input)
+        print(f"✅ Received AI reading ({len(ai_reading)} chars)")
+        
+        # Step 5: Parse scores from AI response
+        scores = extract_scores_from_text(ai_reading)
+        
+        processing_time = time.time() - start_time
+        print(f"\n✅ Daily horoscope completed in {processing_time:.2f}s\n")
+        
+        return jsonify({
+            "success": True,
+            "zodiac": zodiac,
+            "zodiac_name": zodiac_name,
+            "date": today,
+            "card": card_data,
+            "reading": ai_reading,
+            "scores": scores,
+            "lucky_color": lucky_color,
+            "lucky_number": lucky_number,
+            "processing_time": round(processing_time, 2)
+        })
+        
+    except Exception as e:
+        print(f"\n❌ Error: {str(e)}\n")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__
+        }), 500
+
+
+def extract_scores_from_text(text: str) -> dict:
+    """
+    Extract scores from AI response
+    Example: "Tình yêu - Điểm: 8/10" -> love: 8
+    """
+    import re
+    
+    scores = {
+        "love": 7,
+        "career": 7, 
+        "money": 7,
+        "health": 7
+    }
+    
+    # Patterns to match scores
+    patterns = {
+        "love": r'(?:Tình yêu|💝).*?(\d+)/10',
+        "career": r'(?:Công việc|💼).*?(\d+)/10',
+        "money": r'(?:Tài chính|💰).*?(\d+)/10',
+        "health": r'(?:Sức khỏe|💪).*?(\d+)/10'
+    }
+    
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            scores[key] = int(match.group(1))
+    
+    return scores
+
+
 @app.route('/api/cards', methods=['GET'])
 def get_all_cards():
     """Lấy tất cả 78 lá bài"""
